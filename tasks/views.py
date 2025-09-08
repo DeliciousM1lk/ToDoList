@@ -4,6 +4,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, CreateView, ListView
+
+from .forms import TaskForm
 from .models import *
 
 
@@ -48,7 +50,7 @@ class TaskListView(OwnerQuerysetMixin, ListView):
     model = Task
     template_name = 'tasks/task_list.html'
     context_object_name = 'tasks'
-    paginate_by = 10
+    paginate_by = 5
 
     def get_queryset(self):
         qs = super().get_queryset().select_related('owner')
@@ -56,3 +58,15 @@ class TaskListView(OwnerQuerysetMixin, ListView):
         if q:
             qs = qs.filter(title__icontains=q) | qs.filter(description__icontains=q)
         return qs.order_by('-created_at')
+
+
+class TaskCreateView(LoginRequiredMixin, CreateView):
+    model = Task
+    form_class = TaskForm
+    template_name = 'tasks/form.html'
+    success_url = reverse_lazy('tasks:list')
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        messages.success(self.request, 'Task created successfully!')
+        return super().form_valid(form)

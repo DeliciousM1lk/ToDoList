@@ -1,10 +1,72 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}}
+{% block title %} My Tasks {% endblock %}
+{% block content %}
 
-</body>
-</html>
+<h2>My Tasks</h2>
+<form method="get">
+    <input type="search" name="q" value="{{ request.GET.q }}" placeholder="Enter a word to search">>
+    <button type="submit">Find</button>
+    <a href="{% url 'tasks:list' %}">Reset</a>
+</form>
+<p><a href="{% url 'tasks:create' %}">Create Task</a></p>
+
+<table>
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Deadline</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for t in tasks %}
+        <tr>
+            <td><a href="#">{{ t.title }}</a></td>
+            <td>
+                {% if t.status == 'new' %}<span>New</span>{% endif %}
+                {% if t.status == 'in_progress' %}<span>In Progress</span>{% endif %}
+                {% if t.status == 'done' %}<span>Done</span>{% endif %}
+            </td>
+            <td>
+                {% if t.priority == 1 %}<span>Low</span>{% endif %}
+                {% if t.priority == 2 %}<span>Normal</span>{% endif %}
+                {% if t.priority == 3 %}<span>High</span>{% endif %}
+            </td>
+            <td>
+                {% if t.due_date %}
+                    {% if t.is_overdue %}<strong> Overdue {{t.due_date}} </strong>
+                    {% else %} {{t.due_date}}
+                    {% endif %}
+                {% else %}
+                -
+                {% endif %}
+            </td>
+            <td>
+                <a href="#">Edit</a>
+                <a href="#">Delete</a>
+            </td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td>No tasks found</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if is_paginated %}
+<nav>
+    <ul>
+        {% if page_obj.has_previous %}
+        <li><a href="?page={{page_obj.previous_page_number}}{% if request.GET.q %}%q={{request.GET.q}}{% endif %} ">Back</a></li>
+        {% endif %}
+        <li>Page {{page_obj.number}} from {{paginator.num_pages }}</li>
+        {% if page_obj.has_next %}
+        <li><a href="?page={{page_obj.next_page_number}}{% if request.GET.q %}%q={{request.GET.q}}{% endif %}">Next</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}
