@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>{% block title %} {% endblock %}</title>
+</head>
+<body>
+
+<nav>
+    <ul>
+        <li><a href="{% url 'home' %}">Home Page</a></li>
+
+        {% if user.is_authenticated %}
+        <li><a href="{% url 'tasks:list' %}">My Tasks</a></li>
+        {% endif %}
+    </ul>
+
+    <ul>
+        {% if user.is_authenticated %}
+            <li>Hello {{user.username}} !!</li>
+            <li><a href="{% url 'password_change' %}">Change Password</a></li>
+            <li><a href="{% url 'logout' %}">Logout</a></li>
+        {% else %}
+            <li><a href="{% url 'login' %}">Login</a></li>
+            <li><a href="{% url 'tasks:signup' %}">Register</a></li>
+        {% endif %}
+    </ul>
+</nav>
+
+
+
+<main>
+    {% if messages %}
+        <div>
+            {% for m in messages %}
+                <article>
+                    {{ m }}
+                </article>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+
+ {% block content %}
+{% endblock %}
+
+</main>
+
+<footer>
+    <p>&copy;Tasks List</p>
+</footer>
+
+</body>
+</html>

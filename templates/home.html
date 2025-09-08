@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Home Page - Task List {% endblock %}
+{% block content %}
+<h2> Tasks List </h2>
+<p>Project on Django</p>
+{% if user.is_authenticated %}
+  <p><a href="{% url 'tasks:list' %}">To see my tasks</a></p>
+{% else %}
+  <p>
+    <a href="{% url 'tasks:signup' %}">Sign Up</a> Or <a href="{% url 'login' %}">Login</a>
+  </p>
+{% endif %}
+{% endblock %}
