@@ -6,4 +6,5 @@ app_name = 'tasks'
 
 urlpatterns = [
     path('signup/',SignUpView.as_view(),name='signup'),
+    path('', TaskListView.as_view(),name='list'),
 ]
