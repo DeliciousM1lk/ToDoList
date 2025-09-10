@@ -3,11 +3,9 @@ from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView, CreateView, ListView
-
-from .forms import TaskForm
+from django.views.generic import TemplateView, CreateView, ListView, UpdateView
 from .models import *
-
+from .forms import TaskForm
 
 class HomeView(TemplateView):
     template_name = 'home.html'
@@ -20,7 +18,7 @@ class SignUpView(CreateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        user = self.object
+        user=self.object
         login(self.request, user)
         messages.success(self.request, 'Welcome!! Thank you for signing up!')
         return response
@@ -28,45 +26,51 @@ class SignUpView(CreateView):
 
 class OwnerQuerysetMixin(LoginRequiredMixin):
     def get_queryset(self):
-        qs = super().get_queryset()
+        qs=super().get_queryset()
         return qs.filter(owner=self.request.user)
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-
-
-class ObjectOwnerMixin(UserPassesTestMixin):
+class OwnerObjectMixin(UserPassesTestMixin):
     def test_func(self):
-        obj = self.get_object()
-        return obj.owner == self.request.user.id
+        obj=self.get_object()
+        return obj.owner_id == self.request.user.id
+
+    def handle_no_permission(self):
+        messages.error(self.request, 'Sorry, you are not authorized to perform this action.')
+        return super().handle_no_permission()
 
 
-def handle_no_permission(self):
-    messages.error(self.request, 'You do not have permission to do that.')
-    return super().handle_no_permission()
 
-
-class TaskListView(OwnerQuerysetMixin, ListView):
+class TaskListView(OwnerQuerysetMixin,ListView):
     model = Task
-    template_name = 'tasks/task_list.html'
+    template_name = 'tasks/list.html'
     context_object_name = 'tasks'
     paginate_by = 5
 
     def get_queryset(self):
-        qs = super().get_queryset().select_related('owner')
-        q = self.request.GET.get('q')
+        qs=super().get_queryset().select_related('owner')
+        q=self.request.GET.get('q')
         if q:
-            qs = qs.filter(title__icontains=q) | qs.filter(description__icontains=q)
+            qs=qs.filter(title__icontains=q) | qs.filter(description__icontains=q)
         return qs.order_by('-created_at')
 
 
-class TaskCreateView(LoginRequiredMixin, CreateView):
+class TaskCreateView(LoginRequiredMixin,CreateView):
     model = Task
     form_class = TaskForm
-    template_name = 'tasks/form.html'
+    template_name = "tasks/form.html"
     success_url = reverse_lazy('tasks:list')
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
-        messages.success(self.request, 'Task created successfully!')
+        messages.success(self.request, 'Task created!')
+        return super().form_valid(form)
+    
+    
+class TaskUpdateView(OwnerQuerysetMixin,OwnerObjectMixin,UpdateView):
+    model = Task
+    form_class = TaskForm
+    template_name = "tasks/form.html"
+    success_url = reverse_lazy('tasks:list')
+    def form_valid(self, form):
+        messages.success(self.request, 'Task updated!')
         return super().form_valid(form)
