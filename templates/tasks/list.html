@@ -22,7 +22,7 @@
     <tbody>
     {% for t in tasks %}
         <tr>
-            <td><a href="#">{{t.title}}</a></td>
+            <td><a href="{% url 'tasks:detail' t.pk %}">{{t.title}}</a></td>
             <td>
                 {% if t.status == 'new' %}<span>New</span>{% endif %}
                 {% if t.status == 'in_progress' %}<span>In Progress</span>{% endif %}
@@ -45,7 +45,7 @@
             </td>
             <td>
                 <a href="{% url 'tasks:edit' t.pk %}">Update</a>
-                <a href="#">Delete</a>
+                <a href="{% url 'tasks:delete' t.pk %}">Delete</a>
             </td>
         </tr>
     {% empty %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Task Detail{% endblock %}
+{% block content %}
+<h2>{{ task.title }}</h2>
+<p>Task created at: {{ task.created_at|date:"d.m.Y" }}</p>
+
+<p>{{ task.description }}</p>
+
+<ul>
+    <li>Status: {{ task.get_status_display }}</li>
+    <li>Priority: {{ task.get_priority_display }}</li>
+    <li>Deadline: {{ task.due_date|default:"-" }} {% if task.is_overdue %} (Overdue) {% endif %}</li>
+    <li>Finished: {{ task.completed_at|date:"d.m.Y"|default:"-" }}</li>
+    <li>Tags
+        {% if task.tags.all %}
+        {% for tag in task.tags.all %}
+        <p>{{ tag.name }}</p>
+        {% endfor %}
+        {% endif %}
+    </li>
+</ul>
+
+<p>
+    <a href="{% url 'tasks:edit' task.pk %}" role="button">Update</a>
+    <a href="{% url 'tasks:delete' task.pk %}" role="button">Delete</a>
+    <a href="{% url 'tasks:list' %}" role="button">Go Back</a>
+</p>
+
+{% endblock %}
