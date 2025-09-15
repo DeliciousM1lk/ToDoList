@@ -1,29 +1,47 @@
 {% extends "base.html" %}
-{% block title %}Task Detail{% endblock %}
+{% block title %} Task - {{ task.title }} {% endblock %}
+
 {% block content %}
-<h2>{{ task.title }}</h2>
-<p>Task created at: {{ task.created_at|date:"d.m.Y" }}</p>
+<div class="card task-detail">
+  <h2 class="task-title">{{ task.title }}</h2>
+  <p class="task-meta">Created: {{ task.created_at|date:"d.m.Y" }}</p>
 
-<p>{{ task.description }}</p>
+  <p class="task-desc">{{ task.description|default:"(no description)" }}</p>
 
-<ul>
-    <li>Status: {{ task.get_status_display }}</li>
-    <li>Priority: {{ task.get_priority_display }}</li>
-    <li>Deadline: {{ task.due_date|default:"-" }} {% if task.is_overdue %} (Overdue) {% endif %}</li>
-    <li>Finished: {{ task.completed_at|date:"d.m.Y"|default:"-" }}</li>
-    <li>Tags
-        {% if task.tags.all %}
-        {% for tag in task.tags.all %}
-        <p>{{ tag.name }}</p>
-        {% endfor %}
-        {% endif %}
+  <ul class="task-info">
+    <li><strong>Status:</strong> {{ task.get_status_display }}</li>
+    <li><strong>Priority:</strong> {{ task.get_priority_display }}</li>
+    <li>
+      <strong>Deadline:</strong> {{ task.due_date|default:"-" }}
+      {% if task.is_overdue %}
+        <span class="overdue">(Overdue)</span>
+      {% endif %}
     </li>
-</ul>
+    <li><strong>Finished:</strong> {{ task.completed_at|date:"d.m.Y"|default:"-" }}</li>
+    <li>
+      <strong>Tags:</strong>
+      {% if task.tags.all %}
+        <span class="tags">
+          {% for tag in task.tags.all %}
+            <span class="tag">{{ tag.name }}</span>
+          {% endfor %}
+        </span>
+      {% else %}
+        none
+      {% endif %}
+    </li>
+  </ul>
 
-<p>
-    <a href="{% url 'tasks:edit' task.pk %}" role="button">Update</a>
-    <a href="{% url 'tasks:delete' task.pk %}" role="button">Delete</a>
-    <a href="{% url 'tasks:list' %}" role="button">Go Back</a>
-</p>
-
+  <div class="task-actions">
+           {% if task.status != 'done' %}
+          <form method="post" action="{% url 'tasks:complete' task.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm">Complete</button>
+          </form>
+        {% endif %}
+    <a href="{% url 'tasks:edit' task.pk %}" class="btn btn-sm">Update</a>
+    <a href="{% url 'tasks:delete' task.pk %}" class="btn btn-sm btn-danger">Delete</a>
+    <a href="{% url 'tasks:list' %}" class="btn btn-sm btn-secondary">Back</a>
+  </div>
+</div>
 {% endblock %}

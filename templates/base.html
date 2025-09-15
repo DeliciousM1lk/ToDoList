@@ -2,58 +2,56 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <title>{% block title %} {% endblock %}</title>
 </head>
 <body>
 
-<nav>
-    <ul>
-        <li><a href="{% url 'home' %}">Home Page</a></li>
+<header>
+    <div class="container navbar">
+        <!-- Левая часть -->
+        <ul class="links">
+            <li><a href="{% url 'home' %}">Home Page</a></li>
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'tasks:list' %}">My Tasks</a></li>
+            {% endif %}
+        </ul>
 
-        {% if user.is_authenticated %}
-        <li><a href="{% url 'tasks:list' %}">My Tasks</a></li>
-        {% endif %}
-    </ul>
-
-    <ul>
-        {% if user.is_authenticated %}
-            <li>Hello {{user.username}} !!</li>
-            <li><a href="{% url 'password_change' %}">Change Password</a></li>
-            <li>
-                <form action="{% url 'logout' %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit">Logout</button>
-                </form>
-            </li>
-        {% else %}
-            <li><a href="{% url 'login' %}">Login</a></li>
-            <li><a href="{% url 'tasks:signup' %}">Register</a></li>
-        {% endif %}
-    </ul>
-</nav>
+        <!-- Правая часть -->
+        <ul class="links">
+            {% if user.is_authenticated %}
+                <li class="user-greet">Hello, {{ user.username }}!</li>
+                <li><a href="{% url 'password_change' %}">Change Password</a></li>
+                <li>
+                    <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm">Logout</button>
+                    </form>
+                </li>
+            {% else %}
+                <li><a href="{% url 'login' %}" class="btn btn-sm">Login</a></li>
+                <li><a href="{% url 'tasks:signup' %}" class="btn btn-sm">Register</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</header>
 
 
-
-<main>
+<main class="page-container">
     {% if messages %}
-        <div>
+        <div class="alerts">
             {% for m in messages %}
-                <article>
-                    {{ m }}
-                </article>
+                <div class="alert">{{ m }}</div>
             {% endfor %}
         </div>
     {% endif %}
 
-
- {% block content %}
-{% endblock %}
-
+    {% block content %}{% endblock %}
 </main>
 
 <footer>
-    <p>&copy;Tasks List</p>
+    <p>&copy; 2025 Tasks List. All rights reserved.</p>
 </footer>
 
 </body>
